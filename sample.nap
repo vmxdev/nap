@@ -1,0 +1,17 @@
+class a(b):
+    pass
+    def __constructor__(int p1, float p2) returns string as:
+        pass
+
+class c(d, e, f):
+    x = y
+    z = 42
+    def __constructor__(int p1, float p2) returns string as:
+        pass
+    class subclass():
+        d = 88
+        def subclass_func() returns void as:
+            pass
+
+def g() returns int as:
+  pass

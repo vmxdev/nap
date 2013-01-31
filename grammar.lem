@@ -1,0 +1,64 @@
+/* License: public domain */
+
+%include {
+#include <unistd.h>
+#include <assert.h>
+#include "nap.h"
+}
+
+%parse_accept { }
+
+%token_type     { nap_token * }
+%extra_argument { nap *n }
+
+%syntax_error {
+ n->error = 1;
+}
+
+/* grammar entry point, statements or empty  */
+nap            ::= stmts.
+nap            ::= .
+
+/* statements may be simple or compound */
+stmts          ::= stmts stmt.
+stmts          ::= stmt.
+
+stmt           ::= compound_stmt.
+stmt           ::= simple_stmt.
+
+/* simple statesments */
+simple_stmts   ::= simple_stmts simple_stmt.
+simple_stmts   ::= simple_stmt.
+
+simple_stmt    ::= PASS. { nap_meet_pass(n); }
+simple_stmt    ::= assignment.
+
+assignment     ::= lvalue EQ rvalue.
+lvalue         ::= ID.
+rvalue         ::= ID.
+rvalue         ::= INT.
+
+/* compound statesments */
+compound_stmt  ::= classdef.
+compound_stmt  ::= funcdef.
+
+/* class */
+classdef    ::= CLASS ID(N) LPAREN baseclasses RPAREN COLON INDENT stmts DEDENT. { nap_class(n, N); }
+classdef    ::= CLASS ID(N) LPAREN             RPAREN COLON INDENT stmts DEDENT. { nap_class(n, N); }
+
+
+baseclasses ::= baseclasses COMMA type.
+baseclasses ::= type.
+type(T)     ::= ID(I). { T = I; }
+
+/* function */
+funcdef     ::= DEF ID(N) LPAREN funcparms RPAREN RETURNS type(T) AS COLON INDENT simple_stmts DEDENT. { nap_function(n, N, T); }
+funcdef     ::= DEF ID(N) LPAREN           RPAREN RETURNS type(T) AS COLON INDENT simple_stmts DEDENT. { nap_function(n, N, T); }
+
+
+funcparms   ::= funcparms COMMA funcparm.
+funcparms   ::= funcparm.
+
+/* paramenter: type and name */
+funcparm    ::= type ID.
+
